@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Create account')}"></head>
+<body>
+<div class="hf-auth-wrap">
+    <div class="hf-auth-art">
+        <div class="d-flex align-items-center gap-2 mb-5">
+            <div class="hf-brand-mark" style="background:rgba(255,255,255,.2);box-shadow:none"><i class="bi bi-activity"></i></div>
+            <span style="font-weight:800;font-size:1.2rem;letter-spacing:-.03em">HabitFlow</span>
+        </div>
+        <h1 style="color:#fff;font-size:2.4rem;line-height:1.12;max-width:440px">Start with one habit. Compound it.</h1>
+        <p style="max-width:400px;line-height:1.65;opacity:.92">
+            Create your account and add your first habit in under a minute. Every chart you see afterwards
+            is calculated from records you actually created.
+        </p>
+        <div class="mt-auto" style="max-width:400px">
+            <div class="d-flex justify-content-between mb-2" style="font-size:.83rem;opacity:.9">
+                <span>Reading · 20 min</span><span>Health</span>
+            </div>
+            <div class="hf-progress" style="background:rgba(255,255,255,.25);height:9px">
+                <div class="hf-progress-bar" style="width:78%;background:#fff"></div>
+            </div>
+            <div style="font-size:.78rem;opacity:.85;margin-top:.5rem">78% this month — where would you be in a year?</div>
+        </div>
+    </div>
+
+    <div class="hf-auth-panel">
+        <div class="hf-auth-card">
+            <h2 style="font-size:1.5rem;margin-bottom:.3rem">Create your account</h2>
+            <p style="font-size:.88rem;color:var(--hf-text-soft);margin-bottom:1.6rem">It takes less than a minute.</p>
+
+            <div id="authAlert" class="d-none"></div>
+
+            <form id="registerForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="fullName">Full name</label>
+                    <input class="form-control" type="text" id="fullName" name="fullName" placeholder="Alex Morgan" autocomplete="name" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email address</label>
+                    <input class="form-control" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" type="password" id="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" required>
+                    <div class="form-text">Minimum 8 characters, including a letter and a number.</div>
+                </div>
+                <div class="mb-4">
+                    <label class="form-label" for="confirmPassword">Confirm password</label>
+                    <input class="form-control" type="password" id="confirmPassword" name="confirmPassword" placeholder="Repeat your password" autocomplete="new-password" required>
+                </div>
+                <button class="btn btn-hf w-100 py-2" type="submit">Create account</button>
+            </form>
+
+            <p class="text-center mt-4" style="font-size:.85rem;color:var(--hf-text-soft)">
+                Already have an account? <a th:href="@{/login}" style="font-weight:700">Sign in</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/core.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+</body>
+</html>

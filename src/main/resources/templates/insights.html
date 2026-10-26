@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Smart Insights')}"></head>
+<body>
+<div class="hf-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('insights')}"></aside>
+    <div class="hf-main">
+        <header th:replace="~{fragments/layout :: topbar('Smart Insights','Insights')}"></header>
+        <main class="hf-content">
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-4">
+    <div>
+        <p class="mb-0" style="font-size:.86rem;color:var(--hf-text-muted);max-width:620px">
+            Generated in Java from your own completion history using explicit rules — no external AI service.
+            Every card states the numbers behind it, so you can check the reasoning yourself.
+        </p>
+    </div>
+    <button class="btn btn-hf-ghost btn-sm" id="refreshInsights"><i class="bi bi-arrow-clockwise me-1"></i>Refresh</button>
+</div>
+<div class="row g-3" id="insightList">
+    <div class="col-md-6"><div class="hf-card hf-card-pad"><div class="hf-skeleton mb-2" style="height:18px;width:40%"></div><div class="hf-skeleton" style="height:52px"></div></div></div>
+</div>
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: overlay}"></div>
+<th:block th:replace="~{fragments/layout :: scripts('insights')}"></th:block>
+</body>
+</html>

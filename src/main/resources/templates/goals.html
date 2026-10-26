@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Goals & Milestones')}"></head>
+<body>
+<div class="hf-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('goals')}"></aside>
+    <div class="hf-main">
+        <header th:replace="~{fragments/layout :: topbar('Goals & Milestones','Goals')}"></header>
+        <main class="hf-content">
+<div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3"><div class="hf-stat" style="--accent:#7C6BFF;--accent-soft:#EFECFF">
+        <div class="hf-stat-top"><div><div class="hf-stat-label">Active goals</div>
+        <div class="hf-stat-value" id="goalActive">—</div><div class="hf-stat-note">in progress</div></div>
+        <div class="hf-stat-icon"><i class="bi bi-bullseye"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hf-stat" style="--accent:#10B981;--accent-soft:#ECFDF5">
+        <div class="hf-stat-top"><div><div class="hf-stat-label">Completed</div>
+        <div class="hf-stat-value" id="goalDone">—</div><div class="hf-stat-note">reached 100%</div></div>
+        <div class="hf-stat-icon"><i class="bi bi-check2-all"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hf-stat" style="--accent:#3B82F6;--accent-soft:#E8F0FE">
+        <div class="hf-stat-top"><div><div class="hf-stat-label">Average progress</div>
+        <div class="hf-stat-value" id="goalAvg">—</div><div class="hf-stat-note">across goals</div></div>
+        <div class="hf-stat-icon"><i class="bi bi-speedometer2"></i></div></div></div></div>
+    <div class="col-6 col-lg-3"><div class="hf-stat" style="--accent:#F59E0B;--accent-soft:#FEF6E7">
+        <div class="hf-stat-top"><div><div class="hf-stat-label">Next milestone</div>
+        <div class="hf-stat-value" id="goalNext">—</div><div class="hf-stat-note">closest goal</div></div>
+        <div class="hf-stat-icon"><i class="bi bi-flag"></i></div></div></div></div>
+</div>
+
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <p class="mb-0" style="font-size:.85rem;color:var(--hf-text-muted)">Goals linked to habits update automatically from real completions.</p>
+    <button class="btn btn-hf btn-sm" id="newGoalBtn"><i class="bi bi-plus-lg me-1"></i>New goal</button>
+</div>
+
+<div class="row g-3" id="goalList">
+    <div class="col-md-6"><div class="hf-card hf-card-pad"><div class="hf-skeleton mb-2" style="height:20px;width:50%"></div><div class="hf-skeleton" style="height:44px"></div></div></div>
+</div>
+
+<div class="modal fade" id="goalModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title" id="goalModalTitle">New goal</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="alert alert-danger d-none py-2" id="goalFormError" style="font-size:.82rem"></div>
+        <form id="goalForm" novalidate>
+          <input type="hidden" id="goalId">
+          <div class="mb-3"><label class="form-label" for="goalTitle">Goal title</label>
+            <input class="form-control" id="goalTitle" maxlength="140" placeholder="e.g. Practice Java 40 times" required></div>
+          <div class="mb-3"><label class="form-label" for="goalDescription">Description</label>
+            <textarea class="form-control" id="goalDescription" rows="2" maxlength="500"></textarea></div>
+          <div class="row g-3 mb-3">
+            <div class="col-6"><label class="form-label" for="goalTarget">Target count</label>
+              <input class="form-control" type="number" min="1" id="goalTarget" placeholder="40"></div>
+            <div class="col-6"><label class="form-label" for="goalDate">Target date</label>
+              <input class="form-control" type="date" id="goalDate"></div>
+          </div>
+          <div class="mb-3"><label class="form-label" for="goalProgress">Manual progress</label>
+            <input class="form-control" type="number" min="0" id="goalProgress" value="0">
+            <div class="form-text">Ignored when habits are linked — then progress comes from completions.</div></div>
+          <div class="mb-3"><label class="form-label d-block">Linked habits</label>
+            <div id="goalHabits" style="max-height:170px;overflow-y:auto"></div></div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-hf-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-hf" id="goalSaveBtn">Save goal</button>
+      </div>
+    </div>
+  </div>
+</div>
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: overlay}"></div>
+<th:block th:replace="~{fragments/layout :: scripts('goals')}"></th:block>
+</body>
+</html>

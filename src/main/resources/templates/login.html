@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Sign in')}"></head>
+<body>
+<div class="hf-auth-wrap">
+    <div class="hf-auth-art">
+        <div class="d-flex align-items-center gap-2 mb-5">
+            <div class="hf-brand-mark" style="background:rgba(255,255,255,.2);box-shadow:none"><i class="bi bi-activity"></i></div>
+            <span style="font-weight:800;font-size:1.2rem;letter-spacing:-.03em">HabitFlow</span>
+        </div>
+        <h1 style="color:#fff;font-size:2.5rem;line-height:1.12;max-width:440px">Build the habits that build you.</h1>
+        <p style="max-width:400px;line-height:1.65;opacity:.92">
+            Track daily habits, protect your streaks, and let real data tell you where your consistency
+            is winning — and where it needs a nudge.
+        </p>
+        <div class="mt-auto d-flex flex-column gap-3" style="max-width:420px">
+            <div class="d-flex gap-3 align-items-start">
+                <i class="bi bi-check2-circle" style="font-size:1.15rem"></i>
+                <div><strong style="font-size:.9rem">Streaks that respect your schedule</strong>
+                    <div style="font-size:.82rem;opacity:.85">Only scheduled days count, so a rest day never breaks a chain.</div></div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+                <i class="bi bi-bar-chart-line" style="font-size:1.15rem"></i>
+                <div><strong style="font-size:.9rem">Analytics from your own data</strong>
+                    <div style="font-size:.82rem;opacity:.85">Heatmaps, trends and category performance, computed in Java + SQL.</div></div>
+            </div>
+            <div class="d-flex gap-3 align-items-start">
+                <i class="bi bi-bullseye" style="font-size:1.15rem"></i>
+                <div><strong style="font-size:.9rem">Goals with real milestones</strong>
+                    <div style="font-size:.82rem;opacity:.85">25 / 50 / 75 / 100% — announced exactly once, never faked.</div></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="hf-auth-panel">
+        <div class="hf-auth-card">
+            <h2 style="font-size:1.5rem;margin-bottom:.3rem">Welcome back</h2>
+            <p style="font-size:.88rem;color:var(--hf-text-soft);margin-bottom:1.6rem">Sign in to continue your streak.</p>
+
+            <div id="authAlert" class="d-none"></div>
+
+            <form id="loginForm" novalidate>
+                <div class="mb-3">
+                    <label class="form-label" for="email">Email address</label>
+                    <input class="form-control" type="email" id="email" name="email" placeholder="you@example.com" autocomplete="email" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label" for="password">Password</label>
+                    <input class="form-control" type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" required>
+                </div>
+                <button class="btn btn-hf w-100 py-2" type="submit">Sign in</button>
+            </form>
+
+            <p class="text-center mt-4" style="font-size:.85rem;color:var(--hf-text-soft)">
+                New to HabitFlow? <a th:href="@{/register}" style="font-weight:700">Create an account</a>
+            </p>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/js/core.js}"></script>
+<script th:src="@{/js/auth.js}"></script>
+</body>
+</html>

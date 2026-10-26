@@ -1,0 +1,522 @@
+{
+  "info": {
+    "name": "HabitFlow API",
+    "description": "Full REST collection for HabitFlow.\n\nSETUP\n1. Import this file into Postman (File > Import).\n2. Open the collection > Variables and confirm baseUrl = http://localhost:8080.\n3. Run '01 Auth > Login' first. Its test script stores the JSESSIONID cookie and the XSRF-TOKEN cookie automatically, and every later request sends X-XSRF-TOKEN from the collection variable.\n4. Postman keeps cookies per collection, so once you logged in the session is reused.\n\nCSRF\nSpring Security uses the double-submit cookie pattern. GET requests are always safe. Every POST/PUT/PATCH/DELETE needs the X-XSRF-TOKEN header, which the Login request saves into the {{csrf}} variable for you.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "csrf", "value": "" },
+    { "key": "email", "value": "demo@habitflow.app" },
+    { "key": "password", "value": "Demo@12345" },
+    { "key": "habitId", "value": "" },
+    { "key": "goalId", "value": "" },
+    { "key": "notificationId", "value": "" },
+    { "key": "today", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "01 Auth",
+      "item": [
+        {
+          "name": "Health check",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/health", "host": ["{{baseUrl}}"], "path": ["api", "auth", "health"] },
+            "description": "Public. Expected 200 { \"status\": \"UP\", \"application\": \"HabitFlow\" }."
+          }
+        },
+        {
+          "name": "CSRF token",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/csrf", "host": ["{{baseUrl}}"], "path": ["api", "auth", "csrf"] },
+            "description": "Public. Returns { headerName, token } and sets the readable XSRF-TOKEN cookie."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "const body = pm.response.json();",
+              "pm.collectionVariables.set('csrf', body.token);",
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Register",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Aarav Sharma\",\n  \"email\": \"aarav@example.com\",\n  \"password\": \"Secret123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/auth/register", "host": ["{{baseUrl}}"], "path": ["api", "auth", "register"] },
+            "description": "Public. Expected 201 with the created user.\n\nErrors\n400 - validation (name too short, password without a number)\n409 - { \"message\": \"An account with that email already exists.\" }"
+          }
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": { "mode": "urlencoded", "urlencoded": [
+              { "key": "email", "value": "{{email}}" },
+              { "key": "password", "value": "{{password}}" }
+            ] },
+            "url": { "raw": "{{baseUrl}}/api/auth/login", "host": ["{{baseUrl}}"], "path": ["api", "auth", "login"] },
+            "description": "Spring Security form login. Expected 200 { \"success\": true } and a JSESSIONID cookie.\n\nWrong credentials return 401 { \"message\": \"Incorrect email or password.\" }."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "pm.test('logged in', () => pm.response.to.have.status(200));",
+              "const csrf = pm.cookies.get('XSRF-TOKEN');",
+              "if (csrf) { pm.collectionVariables.set('csrf', csrf); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Current user",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/auth/me", "host": ["{{baseUrl}}"], "path": ["api", "auth", "me"] },
+            "description": "Protected. Expected 200 { id, fullName, email, role, timezone, memberSince }.\nUnauthenticated returns 401 { \"message\": \"Please sign in to continue.\" }."
+          }
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/auth/logout", "host": ["{{baseUrl}}"], "path": ["api", "auth", "logout"] },
+            "description": "Expected 200 { \"success\": true, \"message\": \"Signed out.\" } and both cookies cleared."
+          }
+        }
+      ]
+    },
+    {
+      "name": "02 Profile",
+      "item": [
+        {
+          "name": "Get profile",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/profile", "host": ["{{baseUrl}}"], "path": ["api", "profile"] },
+            "description": "Expected 200 with your own profile only."
+          }
+        },
+        {
+          "name": "Update profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"fullName\": \"Aarav Sharma\",\n  \"email\": \"aarav@example.com\",\n  \"timezone\": \"Asia/Kolkata\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/profile", "host": ["{{baseUrl}}"], "path": ["api", "profile"] },
+            "description": "Expected 200. 409 if the email belongs to another account."
+          }
+        },
+        {
+          "name": "Change password",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"currentPassword\": \"Demo@12345\",\n  \"newPassword\": \"BrandNew123\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/profile/password", "host": ["{{baseUrl}}"], "path": ["api", "profile", "password"] },
+            "description": "Expected 200 and the session is invalidated - log in again with the new password.\n400 if the current password is wrong or the new one is identical."
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 Categories",
+      "item": [
+        {
+          "name": "List categories",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+            "description": "Returns the 8 global categories plus any private ones you created."
+          }
+        },
+        {
+          "name": "Create category",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Interview Prep\",\n  \"color\": \"#6366F1\",\n  \"icon\": \"bi-briefcase\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/categories", "host": ["{{baseUrl}}"], "path": ["api", "categories"] },
+            "description": "Expected 201. 400 if the name is blank."
+          }
+        }
+      ]
+    },
+    {
+      "name": "04 Habits",
+      "item": [
+        {
+          "name": "List habits",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/habits?status=ALL",
+              "host": ["{{baseUrl}}"], "path": ["api", "habits"],
+              "query": [ { "key": "status", "value": "ALL", "description": "ALL | ACTIVE | ARCHIVED" } ]
+            },
+            "description": "Only your habits are ever returned - every query is scoped by user_id."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "const list = pm.response.json();",
+              "if (Array.isArray(list) && list.length) { pm.collectionVariables.set('habitId', list[0].id); }",
+              "pm.test('200 OK', () => pm.response.to.have.status(200));"
+            ] } }
+          ]
+        },
+        {
+          "name": "Create habit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Practice Java for 45 minutes\",\n  \"description\": \"One topic per session, then commit the code.\",\n  \"categoryId\": 3,\n  \"targetValue\": 45,\n  \"targetUnit\": \"minutes\",\n  \"frequency\": \"CUSTOM\",\n  \"color\": \"#6366F1\",\n  \"icon\": \"bi-code-slash\",\n  \"reminderTime\": \"19:30\",\n  \"startDate\": \"2026-10-01\",\n  \"scheduleDays\": [1, 2, 3, 4, 5, 6],\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/habits", "host": ["{{baseUrl}}"], "path": ["api", "habits"] },
+            "description": "categoryId 3 = Learning in a freshly seeded database (check /api/categories).\nExpected 201.\n\nErrors\n400 - \"Please choose at least one day for a custom schedule.\", \"A weekly habit needs a weekly target between 1 and 7.\", \"Start date cannot be more than a year in the future.\"\n400 - unknown categoryId: \"Please choose a valid category.\""
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "if (pm.response.code === 201) { pm.collectionVariables.set('habitId', pm.response.json().id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Get habit",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/habits/{{habitId}}", "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}"] },
+            "description": "Expected 200. Another user's id returns 404 \"Habit not found.\" (never 403 - we do not confirm existence)."
+          }
+        },
+        {
+          "name": "Update habit",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"Practice Java for 60 minutes\",\n  \"description\": \"Longer sessions before the interview.\",\n  \"categoryId\": 3,\n  \"targetValue\": 60,\n  \"targetUnit\": \"minutes\",\n  \"frequency\": \"DAILY\",\n  \"color\": \"#6366F1\",\n  \"icon\": \"bi-code-slash\",\n  \"reminderTime\": \"20:00\",\n  \"startDate\": \"2026-10-01\",\n  \"scheduleDays\": [1,2,3,4,5,6,7],\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/habits/{{habitId}}", "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}"] },
+            "description": "Expected 200. The schedule rows are replaced inside one transaction."
+          }
+        },
+        {
+          "name": "Archive habit",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"status\": \"ARCHIVED\" }" },
+            "url": { "raw": "{{baseUrl}}/api/habits/{{habitId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}", "status"] },
+            "description": "Expected 200. Use ACTIVE to reactivate. 400 for any other value."
+          }
+        },
+        {
+          "name": "Habit stats",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{habitId}}/stats?from=2026-09-01&to=2026-10-21",
+              "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}", "stats"],
+              "query": [ { "key": "from", "value": "2026-09-01" }, { "key": "to", "value": "2026-10-21" } ]
+            },
+            "description": "Expected 200 { habitId, habitName, totalCompletions, currentStreak, longestStreak, weeklyRate, monthlyRate, overallRate, lastCompleted, scheduledDaysInRange, completedInRange, consistencyLabel }."
+          }
+        },
+        {
+          "name": "Delete habit",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/habits/{{habitId}}", "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}"] },
+            "description": "Expected 200 { \"ok\": true }. Cascades to schedules, completions and goal links."
+          }
+        }
+      ]
+    },
+    {
+      "name": "05 Tracking",
+      "item": [
+        {
+          "name": "Today's tracking view",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/tracking",
+              "host": ["{{baseUrl}}"], "path": ["api", "tracking"],
+              "query": [ { "key": "date", "value": "", "description": "ISO date, omit for today", "disabled": true } ]
+            },
+            "description": "Expected 200 { date, today, future, scheduledCount, completedCount, dueNowCount, completionPercent, habits[] }.\nA habit that is not due today is never listed as pending."
+          }
+        },
+        {
+          "name": "Complete habit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"date\": \"2026-10-21\",\n  \"note\": \"Finished the collections chapter\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/habits/{{habitId}}/complete", "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}", "complete"] },
+            "description": "Expected 201 with the TodayHabit row and its current streak.\n\nErrors\n409 - \"This habit is already marked complete for 2026-10-21.\"\n400 - \"You cannot mark a future date complete.\"\n400 - \"This habit starts on ...\" / \"This habit is archived. Reactivate it before tracking it.\""
+          }
+        },
+        {
+          "name": "Undo completion",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": {
+              "raw": "{{baseUrl}}/api/habits/{{habitId}}/complete?date=2026-10-21",
+              "host": ["{{baseUrl}}"], "path": ["api", "habits", "{{habitId}}", "complete"],
+              "query": [ { "key": "date", "value": "2026-10-21" } ]
+            },
+            "description": "Expected 200 { \"ok\": true }. 404 if no completion exists for that date."
+          }
+        },
+        {
+          "name": "Completion history",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/completions?from=2026-09-22&to=2026-10-21",
+              "host": ["{{baseUrl}}"], "path": ["api", "completions"],
+              "query": [ { "key": "from", "value": "2026-09-22" }, { "key": "to", "value": "2026-10-21" } ]
+            },
+            "description": "Expected 200 array of completions. Ranges over 400 days or with from > to return 400."
+          }
+        },
+        {
+          "name": "Calendar range",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/calendar?from=2026-10-01&to=2026-10-31",
+              "host": ["{{baseUrl}}"], "path": ["api", "calendar"],
+              "query": [ { "key": "from", "value": "2026-10-01" }, { "key": "to", "value": "2026-10-31" }, { "key": "habitId", "value": "", "disabled": true } ]
+            },
+            "description": "Expected 200 array of { date, scheduled, completed, complete, habits[] }. scheduled = 0 means nothing was due - the UI paints it grey, never red."
+          }
+        }
+      ]
+    },
+    {
+      "name": "06 Dashboard, Analytics, Insights",
+      "item": [
+        {
+          "name": "Dashboard",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "dashboard"] },
+            "description": "Expected 200 with every tile value computed from MySQL: activeHabits, completedToday, scheduledToday, todayPercent, currentStreak, bestStreak, weeklyConsistency, monthlyConsistency, totalCompletions, bestHabitName, bestHabitStreak, pendingToday[], completedTodayList[], weeklyChart[], monthlyChart[], categoryDistribution[], recentCompletions[]."
+          }
+        },
+        {
+          "name": "Analytics (30 days)",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/analytics?from=2026-09-22&to=2026-10-21",
+              "host": ["{{baseUrl}}"], "path": ["api", "analytics"],
+              "query": [ { "key": "from", "value": "2026-09-22" }, { "key": "to", "value": "2026-10-21" }, { "key": "habitId", "value": "", "disabled": true } ]
+            },
+            "description": "Expected 200 { from, to, scheduledSessions, completedSessions, overallRate, dailyRate, weeklyRate, monthlyRate, trend[], habitPerformance[], categoryPerformance[], heatmap[], habitStats[], bestHabits[], lowHabits[] }."
+          }
+        },
+        {
+          "name": "Insights",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/insights", "host": ["{{baseUrl}}"], "path": ["api", "insights"] },
+            "description": "Expected 200 array of { type, title, message, icon, tone } produced by rule-based Java logic - no external AI service is called."
+          }
+        }
+      ]
+    },
+    {
+      "name": "07 Goals",
+      "item": [
+        {
+          "name": "List goals",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/goals", "host": ["{{baseUrl}}"], "path": ["api", "goals"] },
+            "description": "Expected 200 array of { id, title, targetValue, progress, percent, targetDate, daysRemaining, status, habitIds[], habitNames[], milestoneMessage, milestoneReached, source }."
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "const list = pm.response.json();",
+              "if (Array.isArray(list) && list.length) { pm.collectionVariables.set('goalId', list[0].id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Create goal linked to habits",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Practise Java 40 times\",\n  \"description\": \"Forty focused sessions before interviews.\",\n  \"targetValue\": 40,\n  \"manualProgress\": 0,\n  \"targetDate\": \"2026-12-31\",\n  \"habitIds\": [1],\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/goals", "host": ["{{baseUrl}}"], "path": ["api", "goals"] },
+            "description": "Expected 201. When habitIds is non-empty, progress counts real completions since the goal was created; manualProgress is ignored.\n400 - \"One of the selected habits does not belong to you.\""
+          },
+          "event": [
+            { "listen": "test", "script": { "exec": [
+              "if (pm.response.code === 201) { pm.collectionVariables.set('goalId', pm.response.json().id); }"
+            ] } }
+          ]
+        },
+        {
+          "name": "Update goal",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Practise Java 50 times\",\n  \"description\": \"Raised the target after week three.\",\n  \"targetValue\": 50,\n  \"manualProgress\": 0,\n  \"targetDate\": \"2026-12-15\",\n  \"habitIds\": [1],\n  \"status\": \"ACTIVE\"\n}" },
+            "url": { "raw": "{{baseUrl}}/api/goals/{{goalId}}", "host": ["{{baseUrl}}"], "path": ["api", "goals", "{{goalId}}"] },
+            "description": "Expected 200."
+          }
+        },
+        {
+          "name": "Complete goal",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" }
+            ],
+            "body": { "mode": "raw", "raw": "{ \"status\": \"COMPLETED\" }" },
+            "url": { "raw": "{{baseUrl}}/api/goals/{{goalId}}/status", "host": ["{{baseUrl}}"], "path": ["api", "goals", "{{goalId}}", "status"] },
+            "description": "Expected 200. Status must be ACTIVE, COMPLETED or ARCHIVED."
+          }
+        },
+        {
+          "name": "Delete goal",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/goals/{{goalId}}", "host": ["{{baseUrl}}"], "path": ["api", "goals", "{{goalId}}"] },
+            "description": "Expected 200. Your habit history is untouched."
+          }
+        }
+      ]
+    },
+    {
+      "name": "08 Notifications",
+      "item": [
+        {
+          "name": "List notifications",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/notifications?limit=30",
+              "host": ["{{baseUrl}}"], "path": ["api", "notifications"],
+              "query": [ { "key": "unreadOnly", "value": "false", "disabled": true }, { "key": "limit", "value": "30" } ]
+            },
+            "description": "Expected 200 array of { id, type, title, message, link, read, createdAt }. limit is capped at 100.",
+            "event": [
+              { "listen": "test", "script": { "exec": [
+                "const list = pm.response.json();",
+                "if (Array.isArray(list) && list.length) { pm.collectionVariables.set('notificationId', list[0].id); }"
+              ] } }
+            ]
+          }
+        },
+        {
+          "name": "Unread count",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/notifications/unread-count", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "unread-count"] },
+            "description": "Expected 200 { \"count\": 3 } - drives the sidebar badge."
+          }
+        },
+        {
+          "name": "Mark one as read",
+          "request": {
+            "method": "PATCH",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/notifications/{{notificationId}}/read", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "{{notificationId}}", "read"] },
+            "description": "Expected 200."
+          }
+        },
+        {
+          "name": "Mark all as read",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/notifications/read-all", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "read-all"] },
+            "description": "Expected 200."
+          }
+        },
+        {
+          "name": "Delete notification",
+          "request": {
+            "method": "DELETE",
+            "header": [ { "key": "X-XSRF-TOKEN", "value": "{{csrf}}" } ],
+            "url": { "raw": "{{baseUrl}}/api/notifications/{{notificationId}}", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "{{notificationId}}"] },
+            "description": "Expected 200."
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 Security checks",
+      "item": [
+        {
+          "name": "No session returns 401 JSON",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "dashboard"] },
+            "description": "Run this in a fresh Postman tab after clearing cookies. Expected 401 { \"message\": \"Please sign in to continue.\" } - not an HTML redirect."
+          }
+        },
+        {
+          "name": "Foreign habit returns 404",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{baseUrl}}/api/habits/999999", "host": ["{{baseUrl}}"], "path": ["api", "habits", "999999"] },
+            "description": "Proves user isolation: another user's id is indistinguishable from a non-existent one."
+          }
+        },
+        {
+          "name": "POST without CSRF token is rejected",
+          "request": {
+            "method": "POST",
+            "header": [ { "key": "Content-Type", "value": "application/json" } ],
+            "body": { "mode": "raw", "raw": "{ \"date\": \"2026-10-21\" }" },
+            "url": { "raw": "{{baseUrl}}/api/habits/1/complete", "host": ["{{baseUrl}}"], "path": ["api", "habits", "1", "complete"] },
+            "description": "Deliberately omits X-XSRF-TOKEN. Expected 403 - this is the CSRF protection doing its job."
+          }
+        }
+      ]
+    }
+  ]
+}

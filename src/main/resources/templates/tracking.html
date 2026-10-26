@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Daily Tracking')}"></head>
+<body>
+<div class="hf-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('tracking')}"></aside>
+    <div class="hf-main">
+        <header th:replace="~{fragments/layout :: topbar('Daily Tracking','Tracking')}"></header>
+        <main class="hf-content">
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="hf-card">
+            <div class="hf-card-body d-flex flex-wrap align-items-center gap-2">
+                <button class="hf-icon-btn" id="prevDay" title="Previous day"><i class="bi bi-chevron-left"></i></button>
+                <div class="flex-grow-1">
+                    <div style="font-weight:800;font-size:1.05rem" id="trackingDateLabel">Today</div>
+                    <div style="font-size:.78rem;color:var(--hf-text-muted)" id="trackingDateSub">—</div>
+                </div>
+                <input type="date" class="form-control" id="trackingDateInput" style="max-width:170px">
+                <button class="btn btn-hf-ghost btn-sm" id="todayBtn">Today</button>
+                <button class="hf-icon-btn" id="nextDay" title="Next day"><i class="bi bi-chevron-right"></i></button>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="hf-card h-100">
+            <div class="hf-card-body d-flex align-items-center gap-3">
+                <div id="trackingRing"></div>
+                <div>
+                    <div class="hf-stat-label">Progress</div>
+                    <div class="hf-stat-value" style="font-size:1.5rem" id="trackingPercent">0%</div>
+                    <div class="hf-stat-note" id="trackingCounts">0 of 0 completed</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-warning d-none" id="futureNotice" style="font-size:.84rem">
+    <i class="bi bi-info-circle me-1"></i> This date is in the future. Future dates cannot be marked complete.
+</div>
+
+<div class="hf-card">
+    <div class="hf-card-head">
+        <div><h2>Habit checklist</h2><p id="trackingHint">Tick each habit you completed</p></div>
+        <div class="d-flex gap-2">
+            <span class="hf-chip green"><i class="bi bi-check2"></i><span id="completedChip">0 done</span></span>
+            <span class="hf-chip amber"><i class="bi bi-hourglass"></i><span id="pendingChip">0 left</span></span>
+        </div>
+    </div>
+    <div class="hf-card-body" id="trackingList"><div class="hf-skeleton mb-2" style="height:64px"></div><div class="hf-skeleton" style="height:64px"></div></div>
+</div>
+
+<div class="modal fade" id="noteModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Complete habit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p style="font-size:.86rem;color:var(--hf-text-soft)">Add an optional note for <strong id="noteHabitName">this habit</strong>.</p>
+        <textarea class="form-control" id="noteText" rows="3" maxlength="500" placeholder="How did it go? (optional)"></textarea>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-hf-ghost btn-sm" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-hf btn-sm" id="noteSave">Mark complete</button>
+      </div>
+    </div>
+  </div>
+</div>
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: overlay}"></div>
+<th:block th:replace="~{fragments/layout :: scripts('tracking')}"></th:block>
+</body>
+</html>

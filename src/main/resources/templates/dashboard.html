@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Dashboard')}"></head>
+<body>
+<div class="hf-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('dashboard')}"></aside>
+    <div class="hf-main">
+        <header th:replace="~{fragments/layout :: topbar('Dashboard','Overview')}"></header>
+        <main class="hf-content">
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-3 mb-4">
+    <div>
+        <h2 class="mb-1" style="font-size:1.35rem" id="greetingText" data-name="there">Welcome back 👋</h2>
+        <p class="mb-0" style="font-size:.86rem;color:var(--hf-text-muted)" id="dashboardDateLine">Here is how your habits are tracking.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-hf-ghost" th:href="@{/analytics}"><i class="bi bi-graph-up me-1"></i>Reports</a>
+        <a class="btn btn-hf" th:href="@{/habits}"><i class="bi bi-plus-lg me-1"></i>New habit</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4" id="statCards">
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#7C6BFF;--accent-soft:#EFECFF">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">Active habits</div>
+                <div class="hf-stat-value" id="statActive">—</div>
+                <div class="hf-stat-note" id="statActiveNote">tracked now</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-list-task"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#10B981;--accent-soft:#ECFDF5">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">Done today</div>
+                <div class="hf-stat-value" id="statCompleted">—</div>
+                <div class="hf-stat-note" id="statCompletedNote">of scheduled</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-check2-circle"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#3B82F6;--accent-soft:#E8F0FE">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">Today</div>
+                <div class="hf-stat-value" id="statPercent">—</div>
+                <div class="hf-stat-note">completion rate</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-pie-chart"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#F59E0B;--accent-soft:#FEF6E7">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">Streak</div>
+                <div class="hf-stat-value" id="statStreak">—</div>
+                <div class="hf-stat-note">perfect days</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-fire"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#14B8A6;--accent-soft:#E6FBF8">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">Best streak</div>
+                <div class="hf-stat-value" id="statBest">—</div>
+                <div class="hf-stat-note">all time</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-trophy"></i></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-2">
+        <div class="hf-stat" style="--accent:#EC4899;--accent-soft:#FDF2F8">
+            <div class="hf-stat-top">
+                <div><div class="hf-stat-label">7-day rate</div>
+                <div class="hf-stat-value" id="statWeekly">—</div>
+                <div class="hf-stat-note">consistency</div></div>
+                <div class="hf-stat-icon"><i class="bi bi-activity"></i></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-7">
+        <div class="hf-card h-100">
+            <div class="hf-card-head">
+                <div><h2>Today's habits</h2><p id="todaySummary">Loading…</p></div>
+                <a class="btn btn-hf-soft btn-sm" th:href="@{/tracking}">Open tracking</a>
+            </div>
+            <div class="hf-card-body">
+                <div id="todayList">{{SKEL}}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-5">
+        <div class="hf-card h-100">
+            <div class="hf-card-head"><div><h2>Today's progress</h2><p>Only habits scheduled for today</p></div></div>
+            <div class="hf-card-body text-center">
+                <div id="todayRing" class="d-flex justify-content-center my-2"></div>
+                <div class="d-flex justify-content-center gap-4 mt-3">
+                    <div><div class="hf-stat-value" style="font-size:1.3rem" id="ringDone">0</div>
+                        <div class="hf-stat-note">completed</div></div>
+                    <div><div class="hf-stat-value" style="font-size:1.3rem" id="ringLeft">0</div>
+                        <div class="hf-stat-note">remaining</div></div>
+                    <div><div class="hf-stat-value" style="font-size:1.3rem" id="ringTotal">0</div>
+                        <div class="hf-stat-note">scheduled</div></div>
+                </div>
+                <div class="mt-4 pt-3" style="border-top:1px solid var(--hf-border)">
+                    <div class="d-flex justify-content-between mb-2" style="font-size:.8rem">
+                        <span style="color:var(--hf-text-muted)">30-day consistency</span>
+                        <strong id="monthRateText">0%</strong>
+                    </div>
+                    <div id="monthProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-lg-5">
+        <div class="hf-card h-100">
+            <div class="hf-card-head"><div><h2>This week</h2><p>Completion rate per day</p></div></div>
+            <div class="hf-card-body"><canvas id="weeklyChart" height="200"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="hf-card h-100">
+            <div class="hf-card-head"><div><h2>Monthly trend</h2><p>Last four months</p></div></div>
+            <div class="hf-card-body"><canvas id="monthlyChart" height="200"></canvas></div>
+        </div>
+    </div>
+    <div class="col-lg-3">
+        <div class="hf-card h-100">
+            <div class="hf-card-head"><div><h2>Categories</h2><p>Active habits</p></div></div>
+            <div class="hf-card-body"><canvas id="categoryChart" height="200"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-lg-8">
+        <div class="hf-card">
+            <div class="hf-card-head"><div><h2>Recently completed</h2><p>Habits ticked off today</p></div>
+                <a class="btn btn-hf-ghost btn-sm" th:href="@{/calendar}">History</a></div>
+            <div class="hf-card-body" id="recentList">{{SKEL}}</div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="hf-card h-100">
+            <div class="hf-card-head"><div><h2>Top habit</h2><p>Longest active streak</p></div></div>
+            <div class="hf-card-body text-center">
+                <div class="hf-empty-icon" style="width:74px;height:74px;font-size:1.9rem"><i class="bi bi-award"></i></div>
+                <div style="font-weight:800;font-size:1.05rem" id="bestHabitName">—</div>
+                <div class="mt-1 mb-3" style="font-size:.8rem;color:var(--hf-text-muted)">
+                    <strong id="bestHabitStreak" style="color:var(--hf-purple)">0</strong> day streak
+                </div>
+                <a class="btn btn-hf-soft btn-sm w-100" th:href="@{/insights}">See insights</a>
+            </div>
+        </div>
+    </div>
+</div>
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: overlay}"></div>
+<th:block th:replace="~{fragments/layout :: scripts('dashboard')}"></th:block>
+</body>
+</html>

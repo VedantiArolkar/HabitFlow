@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Smart Habit Tracker')}"></head>
+<body style="background:#FBFAFF">
+<style>
+  .lp-nav{position:sticky;top:0;z-index:20;background:rgba(251,250,255,.85);backdrop-filter:blur(12px);border-bottom:1px solid #EDEBF8}
+  .lp-wrap{max-width:1140px;margin:0 auto;padding:0 1.25rem}
+  .lp-brand{display:flex;align-items:center;gap:.6rem;font-weight:800;font-size:1.05rem;color:#1B1735;text-decoration:none}
+  .lp-mark{width:38px;height:38px;border-radius:12px;display:grid;place-items:center;color:#fff;font-size:1.05rem;
+    background:linear-gradient(135deg,#7C6BFF,#3B82F6);box-shadow:0 8px 18px rgba(124,107,255,.35)}
+  .lp-hero{padding:4.5rem 0 3rem;position:relative;overflow:hidden}
+  .lp-hero:before{content:"";position:absolute;width:520px;height:520px;border-radius:50%;right:-160px;top:-200px;
+    background:radial-gradient(circle,rgba(124,107,255,.20),rgba(124,107,255,0) 70%);pointer-events:none}
+  .lp-hero:after{content:"";position:absolute;width:420px;height:420px;border-radius:50%;left:-180px;bottom:-220px;
+    background:radial-gradient(circle,rgba(20,184,166,.18),rgba(20,184,166,0) 70%);pointer-events:none}
+  .lp-eyebrow{display:inline-flex;align-items:center;gap:.45rem;background:#fff;border:1px solid #E7E3FA;color:#5B4BD6;
+    font-size:.74rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:.42rem .8rem;border-radius:999px;
+    box-shadow:0 4px 14px rgba(27,23,53,.05)}
+  .lp-h1{font-size:clamp(2.1rem,4.6vw,3.35rem);font-weight:800;line-height:1.08;letter-spacing:-.03em;color:#14112B;margin:1.1rem 0 1rem}
+  .lp-h1 span{background:linear-gradient(120deg,#7C6BFF,#3B82F6 55%,#14B8A6);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lp-lead{font-size:1.03rem;line-height:1.7;color:#635E7D;max-width:33rem}
+  .lp-btn{display:inline-flex;align-items:center;gap:.5rem;border-radius:12px;padding:.78rem 1.35rem;font-weight:700;font-size:.9rem;
+    text-decoration:none;border:1px solid transparent;transition:.18s}
+  .lp-btn-primary{background:linear-gradient(135deg,#7C6BFF,#6A56F5);color:#fff;box-shadow:0 10px 24px rgba(124,107,255,.32)}
+  .lp-btn-primary:hover{transform:translateY(-1px);color:#fff;box-shadow:0 14px 30px rgba(124,107,255,.4)}
+  .lp-btn-ghost{background:#fff;color:#2A2550;border-color:#E4E0F5}
+  .lp-btn-ghost:hover{background:#F7F6FE;color:#2A2550}
+  .lp-card{background:#fff;border:1px solid #EEECF8;border-radius:18px;box-shadow:0 18px 40px -28px rgba(27,23,53,.35)}
+  .lp-preview{padding:.75rem;transform:rotate(-.6deg)}
+  .lp-preview-inner{background:linear-gradient(160deg,#F7F5FF,#F4FBFB);border-radius:13px;padding:1rem 1.1rem}
+  .lp-chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.7rem;font-weight:700;padding:.28rem .6rem;border-radius:999px;
+    background:#EFECFF;color:#5B4BD6}
+  .lp-bar{height:8px;border-radius:99px;background:#EDEBF8;overflow:hidden}
+  .lp-bar span{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#7C6BFF,#14B8A6)}
+  .lp-row{display:flex;align-items:center;gap:.7rem;background:#fff;border:1px solid #F1EFFA;border-radius:12px;padding:.65rem .75rem;margin-bottom:.5rem}
+  .lp-dot{width:26px;height:26px;border-radius:9px;display:grid;place-items:center;font-size:.75rem;color:#fff}
+  .lp-features{padding:3.5rem 0}
+  .lp-fcard{background:#fff;border:1px solid #EEECF8;border-radius:16px;padding:1.4rem;height:100%;transition:.2s}
+  .lp-fcard:hover{transform:translateY(-3px);box-shadow:0 22px 40px -30px rgba(27,23,53,.5);border-color:#DED9F7}
+  .lp-ficon{width:42px;height:42px;border-radius:12px;display:grid;place-items:center;font-size:1.05rem;margin-bottom:.9rem}
+  .lp-fcard h3{font-size:.98rem;font-weight:750;color:#1B1735;margin:.2rem 0 .45rem}
+  .lp-fcard p{font-size:.85rem;line-height:1.65;color:#6B6684;margin:0}
+  .lp-num{font-size:1.9rem;font-weight:800;color:#14112B;letter-spacing:-.02em}
+  .lp-num-label{font-size:.78rem;color:#6B6684;font-weight:600}
+  .lp-section-title{font-size:clamp(1.5rem,2.6vw,2rem);font-weight:800;letter-spacing:-.02em;color:#14112B}
+  .lp-steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  .lp-steps li{counter-increment:s;position:relative;padding-left:2.6rem;margin-bottom:1.1rem;font-size:.9rem;line-height:1.65;color:#514C6B}
+  .lp-steps li:before{content:counter(s);position:absolute;left:0;top:-2px;width:1.7rem;height:1.7rem;border-radius:50%;
+    background:#EFECFF;color:#5B4BD6;font-weight:800;font-size:.78rem;display:grid;place-items:center}
+  .lp-steps strong{color:#1B1735}
+  .lp-footer{border-top:1px solid #EDEBF8;padding:1.6rem 0;font-size:.8rem;color:#7C7793;background:#fff}
+  .lp-code{background:#15122B;color:#D9D5F5;border-radius:12px;padding:.85rem 1rem;font-size:.78rem;line-height:1.7;
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;overflow-x:auto}
+  .lp-code b{color:#9BE7D8;font-weight:600}
+</style>
+
+<nav class="lp-nav">
+  <div class="lp-wrap d-flex align-items-center justify-content-between py-2">
+    <a class="lp-brand" th:href="@{/}">
+      <span class="lp-mark"><i class="bi bi-activity"></i></span>
+      <span>Habit<span style="color:#7C6BFF">Flow</span></span>
+    </a>
+    <div class="d-none d-md-flex align-items-center gap-4" style="font-size:.87rem;font-weight:600">
+      <a href="#features" style="color:#514C6B;text-decoration:none">Features</a>
+      <a href="#how" style="color:#514C6B;text-decoration:none">How it works</a>
+      <a href="#stack" style="color:#514C6B;text-decoration:none">Tech stack</a>
+    </div>
+    <div class="d-flex align-items-center gap-2">
+      <a class="lp-btn lp-btn-ghost" th:href="@{/login}" style="padding:.55rem 1rem">Sign in</a>
+      <a class="lp-btn lp-btn-primary" th:href="@{/register}" style="padding:.55rem 1rem">
+        <i class="bi bi-arrow-right-short"></i> Get started
+      </a>
+    </div>
+  </div>
+</nav>
+
+<section class="lp-hero">
+  <div class="lp-wrap">
+    <div class="row align-items-center g-5">
+      <div class="col-lg-6">
+        <span class="lp-eyebrow"><i class="bi bi-stars"></i> Java + Spring Boot portfolio project</span>
+        <h1 class="lp-h1">Build habits that <span>actually stick</span>.</h1>
+        <p class="lp-lead">
+          HabitFlow tracks your daily routines, calculates real streaks from your own history,
+          links habits to measurable goals and shows exactly where your consistency slips —
+          all powered by a Spring Boot REST API over MySQL.
+        </p>
+        <div class="d-flex flex-wrap gap-2 mt-4">
+          <a class="lp-btn lp-btn-primary" th:href="@{/register}"><i class="bi bi-person-plus"></i> Create free account</a>
+          <a class="lp-btn lp-btn-ghost" th:href="@{/login}"><i class="bi bi-box-arrow-in-right"></i> Try the demo</a>
+        </div>
+        <p class="mt-3 mb-0" style="font-size:.78rem;color:#7C7793">
+          <i class="bi bi-shield-lock me-1"></i> BCrypt hashed passwords · your data is isolated per account
+        </p>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="lp-card lp-preview">
+          <div class="lp-preview-inner">
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div>
+                <div style="font-size:.72rem;color:#7C7793;font-weight:700;letter-spacing:.05em">TODAY</div>
+                <div style="font-size:1.15rem;font-weight:800;color:#14112B">Good morning, Aarav 👋</div>
+              </div>
+              <span class="lp-chip"><i class="bi bi-fire"></i> 12 day streak</span>
+            </div>
+            <div class="lp-row"><span class="lp-dot" style="background:#7C6BFF"><i class="bi bi-check-lg"></i></span>
+              <div class="flex-grow-1"><div style="font-size:.85rem;font-weight:700;color:#1B1735">Practice Java for 45 min</div>
+                <div style="font-size:.7rem;color:#8B86A3">Learning · 19:30</div></div>
+              <span class="lp-chip" style="background:#ECFDF5;color:#0F9D74">Done</span></div>
+            <div class="lp-row"><span class="lp-dot" style="background:#14B8A6"><i class="bi bi-check-lg"></i></span>
+              <div class="flex-grow-1"><div style="font-size:.85rem;font-weight:700;color:#1B1735">Drink 2L of water</div>
+                <div style="font-size:.7rem;color:#8B86A3">Health · 08:00</div></div>
+              <span class="lp-chip" style="background:#ECFDF5;color:#0F9D74">Done</span></div>
+            <div class="lp-row"><span class="lp-dot" style="background:#F59E0B"><i class="bi bi-dash-lg"></i></span>
+              <div class="flex-grow-1"><div style="font-size:.85rem;font-weight:700;color:#1B1735">Read for 20 minutes</div>
+                <div style="font-size:.7rem;color:#8B86A3">Learning · 21:00</div></div>
+              <span class="lp-chip" style="background:#FEF6E7;color:#B4740B">Pending</span></div>
+            <div class="d-flex justify-content-between mt-3 mb-1" style="font-size:.72rem;color:#7C7793;font-weight:700">
+              <span>Today's progress</span><span>2 / 3</span></div>
+            <div class="lp-bar"><span style="width:67%"></span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 text-center text-md-start mt-5 pt-4" style="border-top:1px solid #EEECF8">
+      <div class="col-6 col-md-3"><div class="lp-num">8</div><div class="lp-num-label">curated categories</div></div>
+      <div class="col-6 col-md-3"><div class="lp-num">11</div><div class="lp-num-label">app pages, fully wired</div></div>
+      <div class="col-6 col-md-3"><div class="lp-num">30+</div><div class="lp-num-label">documented REST endpoints</div></div>
+      <div class="col-6 col-md-3"><div class="lp-num">0</div><div class="lp-num-label">hardcoded dashboard numbers</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="lp-features" id="features">
+  <div class="lp-wrap">
+    <div class="text-center mb-5">
+      <h2 class="lp-section-title">Everything a serious habit tracker needs</h2>
+      <p class="mx-auto mt-2" style="max-width:34rem;color:#6B6684;font-size:.92rem;line-height:1.7">
+        Every number on screen is computed in Java from rows in MySQL — no mock data, no fake charts.
+      </p>
+    </div>
+    <div class="row g-3">
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#EFECFF;color:#5B4BD6"><i class="bi bi-grid-1x2"></i></div>
+        <h3>Live dashboard</h3>
+        <p>Active habits, today's completion rate, current and best streaks, weekly consistency, recent completions
+          and three Chart.js charts — recalculated on every load.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#E8F0FE;color:#2563EB"><i class="bi bi-check2-square"></i></div>
+        <h3>Daily tracking</h3>
+        <p>Tick a habit for any date, add a note, undo it, or step back through history. A database unique key makes
+          double completion impossible.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#E6FBF8;color:#0F9488"><i class="bi bi-fire"></i></div>
+        <h3>Honest streaks</h3>
+        <p>Only scheduled days count. Skip a Tuesday that was never scheduled and your streak survives — miss a
+          scheduled day and it resets. Exactly as it should be.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#FEF6E7;color:#B4740B"><i class="bi bi-bullseye"></i></div>
+        <h3>Goals &amp; milestones</h3>
+        <p>Link a goal to habits and progress is pulled from real completions. Milestone messages fire at 25, 50, 75
+          and 100 percent and are stored as notifications.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#EFECFF;color:#5B4BD6"><i class="bi bi-bar-chart-line"></i></div>
+        <h3>Analytics &amp; heatmap</h3>
+        <p>Trend line, per-habit comparison, category performance, a 0-4 level heatmap, best and weakest habits, plus
+          date-range and single-habit filters.</p></div></div>
+      <div class="col-md-6 col-lg-4"><div class="lp-fcard">
+        <div class="lp-ficon" style="background:#E6FBF8;color:#0F9488"><i class="bi bi-lightbulb"></i></div>
+        <h3>Explainable insights</h3>
+        <p>Rule-based Java logic names your most consistent habit, flags the ones you keep missing and suggests the
+          time of day you actually complete things. No fake AI claims.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="py-4" id="how">
+  <div class="lp-wrap">
+    <div class="row g-5 align-items-center">
+      <div class="col-lg-6">
+        <h2 class="lp-section-title mb-3">From zero to a tracked week</h2>
+        <ol class="lp-steps">
+          <li><strong>Create your account.</strong> Your password is hashed with BCrypt and never stored in plain text.</li>
+          <li><strong>Add two or three habits.</strong> Pick a category, colour, icon, schedule and reminder time.</li>
+          <li><strong>Tick them off each day.</strong> Add a short note if you want context later.</li>
+          <li><strong>Attach a goal.</strong> "Practise Java 40 times" gets a progress bar that fills from real completions.</li>
+          <li><strong>Read the analytics.</strong> Find the weekday you always skip and the habit dragging your average down.</li>
+        </ol>
+        <a class="lp-btn lp-btn-primary mt-2" th:href="@{/register}">Start tracking <i class="bi bi-arrow-right-short"></i></a>
+      </div>
+      <div class="col-lg-6" id="stack">
+        <div class="lp-card p-4">
+          <h3 style="font-size:1rem;font-weight:750;color:#1B1735">Built with the stack employers ask about</h3>
+          <p style="font-size:.85rem;color:#6B6684;line-height:1.7">
+            Java 21, Spring Boot 3, Spring Web, Spring JDBC (JdbcTemplate — no JPA), Spring Security, Bean Validation,
+            MySQL 8, Maven, JUnit 5 + Mockito on the back. Thymeleaf page shells with vanilla JavaScript, Bootstrap 5
+            and Chart.js on the front.
+          </p>
+          <div class="lp-code mt-2">
+            <b>$</b> mvn clean package<br>
+            <b>$</b> java -jar target/habitflow.jar<br>
+            <b>→</b> http://localhost:8080
+          </div>
+          <div class="d-flex flex-wrap gap-2 mt-3">
+            <span class="lp-chip"><i class="bi bi-cup-hot"></i> Java 21</span>
+            <span class="lp-chip"><i class="bi bi-layers"></i> Spring Boot 3.3</span>
+            <span class="lp-chip"><i class="bi bi-database"></i> MySQL + JDBC</span>
+            <span class="lp-chip"><i class="bi bi-shield-check"></i> Spring Security</span>
+            <span class="lp-chip"><i class="bi bi-graph-up"></i> Chart.js</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="py-5">
+  <div class="lp-wrap">
+    <div class="lp-card p-4 p-md-5 text-center" style="background:linear-gradient(135deg,#F7F5FF,#F2FBFA)">
+      <h2 class="lp-section-title mb-2">Ready to see your streak?</h2>
+      <p class="mx-auto mb-4" style="max-width:30rem;color:#6B6684;font-size:.9rem;line-height:1.7">
+        Create your own account to track habits, set goals and explore your progress — or start
+        from a clean slate with your own.
+      </p>
+      <div class="d-flex justify-content-center flex-wrap gap-2">
+        <a class="lp-btn lp-btn-primary" th:href="@{/register}">Create your account</a>
+        <a class="lp-btn lp-btn-ghost" th:href="@{/login}">Sign in to the demo</a>
+      </div>
+      <p class="mt-3 mb-0" style="font-size:.76rem;color:#7C7793">
+      </p>
+    </div>
+  </div>
+</div>
+
+<footer class="lp-footer">
+  <div class="lp-wrap d-flex flex-wrap justify-content-between gap-2">
+    <span>© 2026 HabitFlow · Portfolio project built with Java &amp; Spring Boot</span>
+    <span class="d-flex gap-3">
+      <a th:href="@{/login}" style="color:#7C7793">Sign in</a>
+      <a th:href="@{/register}" style="color:#7C7793">Register</a>
+    </span>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

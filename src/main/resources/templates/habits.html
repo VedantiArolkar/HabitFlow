@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('My Habits')}"></head>
+<body>
+<div class="hf-shell">
+    <aside th:replace="~{fragments/layout :: sidebar('habits')}"></aside>
+    <div class="hf-main">
+        <header th:replace="~{fragments/layout :: topbar('My Habits','Habits')}"></header>
+        <main class="hf-content">
+<div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+    <div class="d-flex gap-2 flex-wrap">
+        <button class="btn btn-hf-soft btn-sm habit-filter active" data-status="ALL">All</button>
+        <button class="btn btn-hf-ghost btn-sm habit-filter" data-status="ACTIVE">Active</button>
+        <button class="btn btn-hf-ghost btn-sm habit-filter" data-status="ARCHIVED">Archived</button>
+    </div>
+    <div class="d-flex gap-2">
+        <input class="form-control form-control-sm" id="habitSearch" placeholder="Search habits…" style="min-width:190px">
+        <button class="btn btn-hf btn-sm" id="newHabitBtn"><i class="bi bi-plus-lg me-1"></i>New habit</button>
+    </div>
+</div>
+
+<div class="alert alert-info d-none" id="habitHint" style="font-size:.83rem"></div>
+
+<div class="row g-3" id="habitGrid">
+    <div class="col-md-6 col-xl-4"><div class="hf-card hf-card-pad"><div class="hf-skeleton mb-2" style="height:20px;width:60%"></div><div class="hf-skeleton" style="height:56px"></div></div></div>
+    <div class="col-md-6 col-xl-4"><div class="hf-card hf-card-pad"><div class="hf-skeleton mb-2" style="height:20px;width:60%"></div><div class="hf-skeleton" style="height:56px"></div></div></div>
+</div>
+
+<div class="modal fade" id="habitModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="habitModalTitle">New habit</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger d-none py-2" id="habitFormError" style="font-size:.82rem"></div>
+        <form id="habitForm" novalidate>
+          <input type="hidden" id="habitId">
+          <div class="row g-3">
+            <div class="col-md-8">
+              <label class="form-label" for="habitName">Habit name</label>
+              <input class="form-control" id="habitName" maxlength="120" placeholder="e.g. Read for 20 minutes" required>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitCategory">Category</label>
+              <select class="form-select" id="habitCategory" required></select>
+            </div>
+            <div class="col-12">
+              <label class="form-label" for="habitDescription">Description</label>
+              <textarea class="form-control" id="habitDescription" rows="2" maxlength="500" placeholder="Why does this habit matter?"></textarea>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitFrequency">Frequency</label>
+              <select class="form-select" id="habitFrequency">
+                <option value="DAILY">Every day</option>
+                <option value="WEEKDAYS">Weekdays only</option>
+                <option value="WEEKLY">Weekly target</option>
+                <option value="CUSTOM">Custom days</option>
+              </select>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitWeeklyTarget">Weekly target</label>
+              <input class="form-control" type="number" id="habitWeeklyTarget" min="1" max="7" placeholder="e.g. 3">
+              <div class="form-text">Used for weekly habits.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitStartDate">Start date</label>
+              <input class="form-control" type="date" id="habitStartDate">
+            </div>
+            <div class="col-12" id="daysWrapper">
+              <label class="form-label d-block">Days of the week</label>
+              <div class="d-flex flex-wrap gap-2" id="dayPicker"></div>
+              <div class="form-text">Only these days count towards streaks.</div>
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitTarget">Target value (optional)</label>
+              <input class="form-control" type="number" step="0.1" min="0" id="habitTarget" placeholder="20">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitUnit">Unit</label>
+              <input class="form-control" id="habitUnit" maxlength="30" placeholder="minutes / litres">
+            </div>
+            <div class="col-md-4">
+              <label class="form-label" for="habitReminder">Reminder time</label>
+              <input class="form-control" type="time" id="habitReminder">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Color</label>
+              <div class="d-flex flex-wrap gap-2" id="colorPicker"></div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Icon</label>
+              <div class="d-flex flex-wrap gap-2" id="iconPicker"></div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-hf-ghost" data-bs-dismiss="modal">Cancel</button>
+        <button class="btn btn-hf" id="habitSaveBtn">Save habit</button>
+      </div>
+    </div>
+  </div>
+</div>
+        </main>
+        <footer th:replace="~{fragments/layout :: footer}"></footer>
+    </div>
+</div>
+<div th:replace="~{fragments/layout :: overlay}"></div>
+<th:block th:replace="~{fragments/layout :: scripts('habits')}"></th:block>
+</body>
+</html>
