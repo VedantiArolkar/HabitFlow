@@ -306,20 +306,9 @@ mvn test
 mvn test -Dtest=StreakCalculatorTest
 ```
 
-### Troubleshooting
 
-| Symptom | Fix |
-|---|---|
-| `Communications link failure` / `Access denied for user` | MySQL not running (Services ▸ MySQL80 ▸ Start) or wrong password; verify with `mysql -u root -p`. |
-| `Unknown database 'habitflow_db'` | Run `database/schema.sql`, or add `createDatabaseIfNotExist=true` to the JDBC URL. |
-| `Port 8080 was already in use` | `netstat -ano \| findstr :8080` then `taskkill /PID <pid> /F`; or run with `--server.port=8081`. |
-| `Public Key Retrieval is not allowed` | Keep `allowPublicKeyRetrieval=true` in the URL (already there). |
-| Pages load but every card says "Could not load…" | You are signed out — the API returns `401`. Sign in again. |
-| `403` on POST from Postman | Missing `X-XSRF-TOKEN`; run the CSRF or Login request first. |
-| Red X in Eclipse, `release version 21 not supported` | Eclipse is on an older JDK: fix `Installed JREs`, then *Maven ▸ Update Project*. |
-| `Table 'habitflow_db.users' doesn't exist` | `spring.sql.init.mode` is `always` by default; check the log for a schema error and re-run `database/schema.sql`. |
 
----
+
 
 ## 8. What the finished UI looks like
 
@@ -342,27 +331,5 @@ To capture screenshots for a report: run the app, sign in as the demo user, pres
 
 ---
 
-## 9. Publishing to GitHub
 
-```bat
-git init
-git add .
-git commit -m "HabitFlow: Spring Boot + JDBC + MySQL habit tracker"
-git branch -M main
-git remote add origin https://github.com/<your-username>/habitflow.git
-git push -u origin main
-```
 
-`.gitignore` already excludes `target/`, Eclipse metadata, IDE folders, `*.log` and local secret files. Before pushing, confirm `application.properties` contains only environment-variable defaults — no real password.
-
-## 10. Possible next steps
-
-1. Add `@WithMockUser`-based MockMvc tests for the controllers and a `@JdbcTest` repository test.
-2. Export analytics as CSV/PDF.
-3. Optional AI summary behind an `AiInsightService` interface with a `RuleBasedInsightService` (default) and an HTTP implementation enabled by config — the current design already isolates it.
-4. Add Flyway migrations so schema changes are versioned instead of `CREATE TABLE IF NOT EXISTS`.
-5. Extend reminders with a scheduled `@Scheduled` job plus a service worker for real browser notifications (would require VAPID keys and HTTPS).
-
----
-
-Built as a portfolio project: Java 21 · Spring Boot 3.3 · Spring Web · Spring JDBC · Spring Security · Bean Validation · MySQL 8 · Maven · JUnit 5 · Mockito · Thymeleaf · Bootstrap 5 · Chart.js.
